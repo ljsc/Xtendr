@@ -18,13 +18,13 @@ module Xtendr
     attach_function 'removexattr', [:string, :string, :int], :int
   end
 
-  def get_xattr(attribute)
-    get_xattr! attribute
+  def getx(attribute)
+    getx! attribute
   rescue Errno::ENOATTR
     nil
   end
 
-  def get_xattr!(attribute)
+  def getx!(attribute)
     len = FFI.getxattr(self.to_s, attribute, nil, 0, 0, 0)
     raise_error(attribute, ::FFI::LastError::error) if len < 0
     buffer = ::FFI::Buffer.alloc_out(len)
@@ -32,18 +32,18 @@ module Xtendr
     buffer.get_string(0, buffer.size)
   end
 
-  def set_xattr(attribute, value)
+  def setx(attribute, value)
     FFI.setxattr(self.to_s, attribute, value, value.size, 0, 0)
   end
 
-  def list_xattrs
+  def listx
     len = FFI.listxattr(self.to_s, nil, 0, 0)
     buffer = ::FFI::Buffer.alloc_out(len)
     FFI.listxattr(self.to_s, buffer, buffer.size, 0)
     buffer.get_bytes(0, buffer.size).split("\0")
   end
 
-  def remove_xattr(attribute)
+  def removex(attribute)
     FFI.removexattr(self.to_s, attribute, 0)
   end
 
