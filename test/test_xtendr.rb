@@ -45,4 +45,15 @@ class TestXtendr < Test::Unit::TestCase
     assert store.listx.include?('seek')
   end
 
+  def test_options
+    store = Xtendr(__FILE__)
+    store.removex('createme')
+    assert_nothing_raised do
+      store.setx('createme', 'done!', :create)
+    end
+    assert_raise Errno::EEXIST do
+      store.setx('createme', 'done!', :create)
+    end
+  end
+
 end

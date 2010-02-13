@@ -32,8 +32,10 @@ module Xtendr
     buffer.get_string(0, buffer.size)
   end
 
-  def setx(attribute, value)
-    FFI.setxattr(self.to_s, attribute, value, value.size, 0, 0)
+  def setx(attribute, value, *opts)
+    options = opts.include?(:create) ? 0x02 : 0x00
+    retval = FFI.setxattr(self.to_s, attribute, value, value.size, 0, options)
+    raise_error(nil, ::FFI::LastError::error) if retval < 0
   end
 
   def listx
