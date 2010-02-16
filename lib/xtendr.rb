@@ -1,13 +1,5 @@
 require 'ffi'
 
-class Errno::ENOATTR < SystemCallError
-  Errno = 93
-
-  def initialize(msg=nil)
-    super(msg)
-  end
-end
-
 module Xtendr
   # Module to contain attached foreign functions.
   # @private
@@ -92,6 +84,17 @@ module Xtendr
         raise SystemCallError.new(msg, code)
       end
     end
+end
+
+class Errno::ENOATTR < SystemCallError
+  # FIXME: This works on Mac OS X (Snow Leopard), but this really shouldn't be
+  # hardcoded. Unfortunatly, we probably can't get the error number symbolically
+  # without a c extension, which defeats the purpose of usign ffi.
+  Errno = 93
+
+  def initialize(msg=nil)
+    super(msg)
+  end
 end
 
 class XtendrProxy
