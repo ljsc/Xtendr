@@ -28,6 +28,12 @@ class TestXtendr < Test::Unit::TestCase
     end
   end
 
+  def test_get_default
+    store = Xtendr(__FILE__)
+    store.removex('removed') if store.getx('remove')
+    assert_equal 'default', store.getx('remove') { 'default' }
+  end
+
   def test_listing
     store = Xtendr(__FILE__)
     store.setx('listme', 'true')

@@ -9,8 +9,9 @@ class Errno::ENOATTR < SystemCallError
 end
 
 module Xtendr
+  # Module to contain attached foreign functions.
+  # @private
   module FFI
-    include ::FFI
     extend ::FFI::Library
     ffi_lib 'System'
     attach_function 'setxattr', [:string, :string, :pointer, :int, :int, :int], :int
@@ -23,12 +24,13 @@ module Xtendr
   # `#to_s` on self to get the path to the file the attribute is set on.
   #
   # @param [String] attribute The extended attribute to retrieve.
-  # @return [String, nil] The value of the attribute, or nil if it is not set.
-  #
+  # @return [String, nil] The value of the attribute, or nil if it is not set
+  #                       and no block is passed.
+  # @yield Block is run when the attribute is not found.
   def getx(attribute)
     getx! attribute
   rescue Errno::ENOATTR
-    nil
+    block_given? ? yield : nil
   end
 
   # Get the value of an extended attribute, raising an error if the attribute is
@@ -43,8 +45,8 @@ module Xtendr
   #
   def getx!(attribute)
     len = FFI.getxattr(self.to_s, attribute, nil, 0, 0, 0)
-    raise_error(attribute, FFI::LastError::error) if len < 0
-    buffer = FFI::Buffer.alloc_out(len)
+    raise_error(attribute, ::FFI::LastError::error) if len < 0
+    buffer = ::FFI::Buffer.alloc_out(len)
     FFI.getxattr(self.to_s, attribute, buffer, buffer.size, 0, 0)
     buffer.get_string(0, buffer.size)
   end
@@ -61,7 +63,7 @@ module Xtendr
   def setx(attribute, value, *opts)
     options = opts.include?(:create) ? 0x02 : 0x00
     retval = FFI.setxattr(self.to_s, attribute, value, value.size, 0, options)
-    raise_error(nil, FFI::LastError::error) if retval < 0
+    raise_error(nil, ::FFI::LastError::error) if retval < 0
   end
 
   # List all of the extended attribute for the object.
@@ -69,7 +71,7 @@ module Xtendr
   #   set.
   def listx
     len = FFI.listxattr(self.to_s, nil, 0, 0)
-    buffer = FFI::Buffer.alloc_out(len)
+    buffer = ::FFI::Buffer.alloc_out(len)
     FFI.listxattr(self.to_s, buffer, buffer.size, 0)
     buffer.get_bytes(0, buffer.size).split("\0")
   end
