@@ -1,6 +1,6 @@
 = xtendr
 
-Description goes here.
+Ruby FFI binding for accessing extended file attributes.
 
 == Note on Patches/Pull Requests
  
